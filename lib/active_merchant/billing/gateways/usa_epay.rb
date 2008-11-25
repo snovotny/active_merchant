@@ -12,7 +12,8 @@ module ActiveMerchant #:nodoc:
       TRANSACTIONS = {
         :authorization => 'authonly',
         :purchase => 'sale',
-        :capture => 'capture'
+        :capture => 'capture',
+        :credit => 'refund',
       }
 
       def initialize(options = {})
@@ -52,6 +53,14 @@ module ActiveMerchant #:nodoc:
         
         add_amount(post, money)
         commit(:capture, post)
+      end
+      
+      def credit(money, authorization)
+        post = {
+          :refNum => authorization
+        }
+        add_amount(post, money)
+        commit(:credit, post)
       end
        
       private                       
@@ -151,7 +160,10 @@ module ActiveMerchant #:nodoc:
           :error => fields['UMerror'],
           :error_code => fields['UMerrorcode'],
           :acs_url => fields['UMacsurl'],
-          :payload => fields['UMpayload']
+          :payload => fields['UMpayload'],
+          :recurring => fields['UMrecurring'],
+          :cust_num => fields['UMcustnum'],
+          :custid => fields['UMcustid']
         }.delete_if{|k, v| v.nil?}         
       end     
 
